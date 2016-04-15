@@ -54,7 +54,7 @@ class TwemRedis:
         # Connect to all the shards with the names specified per
         # shard_name_format. The names are important since it's getting
         # the instances from Redis Sentinel.
-        for shard_num in range(0, self.num_shards):
+        for shard_num in range(self.num_shards):
             shard_name = self.get_shard_name(shard_num)
             self._shards[shard_num] = sentinel_client.master_for(
                 shard_name, socket_timeout=1.0)
@@ -87,7 +87,7 @@ class TwemRedis:
         shard_name_format
         """
         results = []
-        for shard_num in range(0, self.num_shards):
+        for shard_num in range(self.num_shards):
             shard_name = self.get_shard_name(shard_num)
             results.append(shard_name)
 
@@ -287,7 +287,7 @@ class TwemRedis:
         """
         results = {}
         # TODO: parallelize
-        for shard_num in range(0, self.num_shards):
+        for shard_num in range(self.num_shards):
             shard = self.get_shard_by_num(shard_num)
             results[shard_num] = shard.keys(args)
         return results
