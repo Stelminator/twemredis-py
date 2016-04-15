@@ -54,13 +54,14 @@ class TwemRedis:
         # Connect to all the shards with the names specified per
         # shard_name_format. The names are important since it's getting
         # the instances from Redis Sentinel.
-        for shard_num in range(0, self.num_shards()):
+        for shard_num in range(0, self.num_shards):
             shard_name = self.get_shard_name(shard_num)
             self._shards[shard_num] = sentinel_client.master_for(
                 shard_name, socket_timeout=1.0)
         # Just in case we need it later.
         self._sentinel_client = sentinel_client
 
+    @property
     def num_shards(self):
         """
         num_shards returns the number of Redis shards in this cluster.
@@ -86,7 +87,7 @@ class TwemRedis:
         shard_name_format
         """
         results = []
-        for shard_num in range(0, self.num_shards()):
+        for shard_num in range(0, self.num_shards):
             shard_name = self.get_shard_name(shard_num)
             results.append(shard_name)
 
@@ -163,7 +164,7 @@ class TwemRedis:
                int(m[4:6], 16) << 16 |
                int(m[6:8], 16) << 24)
 
-        return val % self.num_shards()
+        return val % self.num_shards
 
     def get_canonical_key(self, key_type, key_id):
         """
@@ -216,7 +217,7 @@ class TwemRedis:
 
         Returns a redis.StrictRedis connection or raises a ValueError.
         """
-        if shard_num < 0 or shard_num >= self.num_shards():
+        if shard_num < 0 or shard_num >= self.num_shards:
             raise ValueError("requested invalid shard# {0}".format(shard_num))
 
         return self._shards[shard_num]
@@ -257,7 +258,7 @@ class TwemRedis:
         the canonical key ids.
         """
         canonical_keys = {}
-        num_shards = self.num_shards()
+        num_shards = self.num_shards
         # Guarantees enough to find all keys without running forever
         num_iterations = (num_shards**2) * search_amplifier
         for key_id in range(1, num_iterations):
@@ -286,7 +287,7 @@ class TwemRedis:
         """
         results = {}
         # TODO: parallelize
-        for shard_num in range(0, self.num_shards()):
+        for shard_num in range(0, self.num_shards):
             shard = self.get_shard_by_num(shard_num)
             results[shard_num] = shard.keys(args)
         return results
